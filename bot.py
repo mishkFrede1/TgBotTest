@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import asyncio
 import os
 from aiogram import Bot, Dispatcher
@@ -19,7 +20,6 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-=======
 import asyncio
 import os
 from aiogram import Bot, Dispatcher
@@ -40,5 +40,4 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
->>>>>>> c016f4ad8c783d9d2330cedc356225695b705df7
     asyncio.run(main())
