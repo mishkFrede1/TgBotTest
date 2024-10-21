@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from psycopg2.pool import SimpleConnectionPool
 from datetime import time
 from datetime import date
@@ -143,7 +142,7 @@ class Manager():
             print("[ERROR]", _ex)
         finally:
             cursor.close()
-=======
+
 from psycopg2.pool import SimpleConnectionPool
 from datetime import time
 from datetime import date
@@ -288,5 +287,4 @@ class Manager():
             print("[ERROR]", _ex)
         finally:
             cursor.close()
->>>>>>> c016f4ad8c783d9d2330cedc356225695b705df7
             self.release_db_connection(conn)
