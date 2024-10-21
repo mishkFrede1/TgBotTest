@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+aiogram=3.x.x
+python-dotenv
+psycopg2
+asyncio
+=======
+aiogram=3.x.x
+python-dotenv
+psycopg2
+asyncio
+>>>>>>> c016f4ad8c783d9d2330cedc356225695b705df7
+apscheduler
