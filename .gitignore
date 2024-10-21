@@ -1,8 +1,3 @@
-<<<<<<< HEAD
 .env
 __pycache__/
-=======
-.env
-__pycache__/
->>>>>>> c016f4ad8c783d9d2330cedc356225695b705df7
 **/__pycache__/
