@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 from aiogram.client.bot import DefaultBotProperties
 
-from handlers import base_commands
+from handlers import base_commands, applications
 
 async def main():
     load_dotenv()
@@ -14,7 +14,8 @@ async def main():
     dp = Dispatcher(bot=bot)
     
     dp.include_routers(
-        base_commands.router
+        base_commands.router,
+        applications.router
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

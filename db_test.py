@@ -1,3 +1,3 @@
 from db_manager import Manager
 manager = Manager()
-print(manager.user_exists(10000))
+print(manager.user_accepted(10000))

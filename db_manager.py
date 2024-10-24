@@ -5,11 +5,10 @@ from datetime import date
 class Manager():
     connection_pool = SimpleConnectionPool(
         1, 20, 
-        user='instance_2024_sql',
-        password=':tfzIl.c4kIcbOm|',
-        host='35.232.211.225',
-        database='Applications',
-        port = "5432"
+        user='postgres',
+        password='1707',
+        host='127.0.0.1',
+        database='users_profiles'
     )
 
     def get_connection_from_pool(self) -> any:
@@ -69,18 +68,19 @@ class Manager():
             cursor.close()
             self.release_db_connection(conn)
 
-    def new_user(self, user_id: int, first_name: str, login: str, password: str):
+    def user_accepted(self, user_id: int) -> bool:
         conn = self.get_connection_from_pool()
         conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO users (user_id, first_name, login, password) VALUES (%s, %s, %s, %s)
+                    SELECT accepted FROM users WHERE user_id = %s;
                     """, 
-                    (user_id, first_name, login, password,)
+                    (user_id,)
                 )
-                print("[INFO] Succesfully upload data:", user_id, first_name, login, password)
+                exists = cursor.fetchone()[0]
+                return(exists)
             
         except Exception as _ex:
             print("[ERROR]", _ex)
@@ -88,7 +88,26 @@ class Manager():
             cursor.close()
             self.release_db_connection(conn)
 
-    def get_login_password(self, user_id: int):
+    def new_user(self, user_id: int, first_name: str, last_name: str, age: int, gender_female: bool, rejected=False):
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO users (user_id, first_name, last_name, age, gender_female, accepted, rejected) VALUES (%s, %s, %s, %s, %s, %s, %s);
+                    """, 
+                    (user_id, first_name, last_name, age, gender_female, False, rejected,)
+                )
+                print("[INFO] Succesfully upload data:", user_id, first_name, last_name, age, gender_female)
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
+    def get_user(self, user_id: int):
         conn = self.get_connection_from_pool()
         conn.autocommit = True
         try:
@@ -99,7 +118,26 @@ class Manager():
                     """, 
                     (user_id,)
                 )
-                return cursor.fetchall()
+                return cursor.fetchall()[0]
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
+    def update_app_status(self, user_id: int, param_name: str, param_value: bool):
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    f"""
+                    UPDATE users SET {param_name} = %s WHERE user_id = %s;
+                    """, 
+                    (param_value, user_id,)
+                )
+                print("[INFO] Succesfully upload data:", param_name, param_value, user_id)
             
         except Exception as _ex:
             print("[ERROR]", _ex)
@@ -119,25 +157,6 @@ class Manager():
                     (grades_cards, user_id,)
                 )
                 print("[INFO] Succesfully upload data:", grades_cards, user_id)
-            
-        except Exception as _ex:
-            print("[ERROR]", _ex)
-        finally:
-            cursor.close()
-            self.release_db_connection(conn)
-
-    def update_exams_cards(self, user_id: int, exams_cards):
-        conn = self.get_connection_from_pool()
-        conn.autocommit = True
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users SET exams_cards = %s WHERE user_id = %s;
-                    """, 
-                    (exams_cards, user_id,)
-                )
-                print("[INFO] Succesfully upload data:", exams_cards, user_id)
             
         except Exception as _ex:
             print("[ERROR]", _ex)
