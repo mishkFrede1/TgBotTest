@@ -5,10 +5,11 @@ from datetime import date
 class Manager():
     connection_pool = SimpleConnectionPool(
         1, 20, 
-        user='postgres',
-        password='1707',
-        host='127.0.0.1',
-        database='grim_team'
+        user='instance_2024_sql',
+        password=':tfzIl.c4kIcbOm|',
+        host='35.232.211.225',
+        database='Applications',
+        port = "5432"
     )
 
     def get_connection_from_pool(self) -> any:
