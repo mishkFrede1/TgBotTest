@@ -3,6 +3,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, C
 from aiogram.filters import Command
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext 
+import dotenv
+import os
 
 from data import texts, keyboards
 from db_manager import Manager
@@ -19,31 +21,58 @@ class reg(StatesGroup):
     want_work = State()
 
 # Функция отправки заявки модератору
-async def send_registration_request(user_id: int, moderator_id: int, bot, first_name: str, last_name: str, age: int, gender: str):
+async def send_registration_request(user_id: int, moderator_id: int, bot, first_name: str, last_name: str, age: int, gender: str, username: str):
     buttons = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='✅ Принять', callback_data=f'app_accept_{user_id}_{moderator_id}'), InlineKeyboardButton(text='❌ Отклонить', callback_data=f'app_reject_{user_id}_{moderator_id}')]
+        [InlineKeyboardButton(text='✅ Принять', callback_data=f'app_accept_{user_id}_{moderator_id}_{username}'), InlineKeyboardButton(text='❌ Отклонить', callback_data=f'app_reject_{user_id}_{moderator_id}_{username}')]
     ])
 
     await bot.send_message(
         moderator_id,
-        texts.application_info.format(user_id=user_id, first_name=first_name, last_name=last_name, age=f"{age} {getAgeEnding(age)}", gender=gender),
-        reply_markup=buttons
+        texts.application_info.format(username=username, user_id=user_id, first_name=first_name, last_name=last_name, age=f"{age} {getAgeEnding(age)}", gender=gender),
+        reply_markup=buttons,
+
     )
 
-def isItFirstApp(user_id: int) -> bool:
-    if manager.user_exists(user_id):
-        return False
-    else: return True
+# Обработка нажатия кнопки модерации
+@router.callback_query(F.data.startswith("app_"))
+async def process_moderation(callback_query: CallbackQuery, bot: Bot):
+    splitted = callback_query.data.split("_")
+    moderator_id = int(splitted[3])
+    user_id = int(splitted[2])
+    action = splitted[1]
+    username = splitted[4]
+    
+    if action == 'accept':
+        # Логика подтверждения регистрации пользователя
+        manager.update_app_status(user_id, "accepted", True)
+        await bot.send_message(moderator_id, f"✅ Заявка пользователя @{username} принята")
+        await bot.send_message(user_id, "✅ <b>Ваша заявка принята.</b> Добро пожаловать в команду!", reply_markup=keyboards.menu)
 
-async def send_application(user_id: int, bot: Bot, first_name: str, last_name: str, age: int, gender_female: bool):
-    moderator_id = 6603647116  # Укажите ID модератора (863400079)
+    elif action == 'reject':
+        # Логика отклонения и блокировки пользователя
+        manager.update_app_status(user_id, "rejected", True)
+        await bot.send_message(moderator_id, f"❌ Заявка пользователя @{username} отклонена")
+        await bot.send_message(user_id, "❌ <b>Ваша заявка была отклонена.</b>")
+
+
+    # Удаляем сообщение с кнопками у модератора
+    await callback_query.message.delete()
+
+async def send_application(user_id: int, bot: Bot, first_name: str, last_name: str, age: int, gender_female: bool, username: str):
+    dotenv.load_dotenv()
+    moderator_id = os.getenv('MODERATOR_ID')  # Укажите ID модератора (863400079), Head_ofAdministrations - 6603647116
     manager.new_user(user_id, first_name, last_name, age, gender_female)
 
     gender = "Мужской"
     if gender_female:
         gender = "Женский"
 
-    await send_registration_request(user_id, moderator_id, bot, first_name, last_name, age, gender)
+    await send_registration_request(user_id, moderator_id, bot, first_name, last_name, age, gender, username)
+
+def isItFirstApp(user_id: int) -> bool:
+    if manager.user_exists(user_id):
+        return False
+    else: return True
 
 @router.message(F.text == "📝 Отправить заявку")
 async def register(message: Message, state: FSMContext):
@@ -97,13 +126,15 @@ async def register5(message: Message, bot: Bot, state: FSMContext):
         await message.answer(texts.application_send, reply_markup=keyboards.start)
         
         data = await state.get_data()
-        await send_application(message.from_user.id, bot, data["first_name"], data["last_name"], data["age"], data["gender_female"])
+        await send_application(message.from_user.id, bot, data["first_name"], data["last_name"], data["age"], data["gender_female"], message.from_user.username)
+        await state.clear()
 
     elif message.text == "❌ Я зашел поинтересоваться":
         await message.answer("❌ <b>Вы нам не подходите!</b> ", reply_markup=keyboards.start)
         
         data = await state.get_data()
         manager.new_user(message.from_user.id, data["first_name"], data["last_name"], data["age"], data["gender_female"], rejected=True)
+        await state.clear()
 
     else:
         await message.answer("❌ <b>Ошибка!</b> Вы должны выбрать вариант из ниже приведенных!")
@@ -121,28 +152,3 @@ async def register_command(message: Message, state: FSMContext):
             await message.answer(texts.application_accepted_error)
         else:
             await message.answer(texts.application_repeat_error)
-
-
-# Обработка нажатия кнопки модерации
-@router.callback_query(F.data.startswith("app_"))
-async def process_moderation(callback_query: CallbackQuery, bot: Bot):
-    splitted = callback_query.data.split("_")
-    moderator_id = int(splitted[3])
-    user_id = int(splitted[2])
-    action = splitted[1]
-    
-    if action == 'accept':
-        # Логика подтверждения регистрации пользователя
-        manager.update_app_status(user_id, "accepted", True)
-        await bot.send_message(moderator_id, f"✅ Заявка пользователя {user_id} принята")
-        await bot.send_message(user_id, "✅ Ваша заявка принята.", reply_markup=keyboards.menu)
-
-    elif action == 'reject':
-        # Логика отклонения и блокировки пользователя
-        manager.update_app_status(user_id, "rejected", True)
-        await bot.send_message(moderator_id, f"❌ Заявка пользователя {user_id} отклонена")
-        await bot.send_message(user_id, "❌ Ваша заявка была отклонена.")
-
-
-    # Удаляем сообщение с кнопками у модератора
-    await callback_query.message.delete()

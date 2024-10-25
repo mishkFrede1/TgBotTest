@@ -68,6 +68,63 @@ class Manager():
             cursor.close()
             self.release_db_connection(conn)
 
+    def all_users(self):
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT * FROM users;
+                    """
+                )
+                all = cursor.fetchall()
+                return(all)
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
+    def all_rejected_users(self) -> bool:
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT * FROM users WHERE rejected = TRUE;
+                    """
+                )
+                all = cursor.fetchall()
+                return(all)
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
+    def all_accepted_users(self) -> bool:
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT * FROM users WHERE accepted = TRUE;
+                    """
+                )
+                all = cursor.fetchall()
+                return(all)
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
     def user_accepted(self, user_id: int) -> bool:
         conn = self.get_connection_from_pool()
         conn.autocommit = True
@@ -119,6 +176,25 @@ class Manager():
                     (user_id,)
                 )
                 return cursor.fetchall()[0]
+            
+        except Exception as _ex:
+            print("[ERROR]", _ex)
+        finally:
+            cursor.close()
+            self.release_db_connection(conn)
+
+    def get_user_by_param(self, param_name: str, param_value):
+        conn = self.get_connection_from_pool()
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    f"""
+                    SELECT * FROM users WHERE {param_name} = %s
+                    """, 
+                    (param_value,)
+                )
+                return cursor.fetchall()
             
         except Exception as _ex:
             print("[ERROR]", _ex)
