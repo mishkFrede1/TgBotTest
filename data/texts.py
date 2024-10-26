@@ -66,7 +66,7 @@ manuals = (
     "📑 <b>Все доступные мануалы:</b>\n\n"
     "<b>-</b> <a href='https://telegra.ph/Podrobno-ob-ehskorte-10-22-3'>Эскорт</a> 😏\n"
     "<b>-</b> <a href='https://telegra.ph/Podrobno-o-shantazhe-10-23'>Шантаж</a> 🍆\n"
-    "<b>-</b> <a href='https://telegra.ph/Manual-po-ajklaudu-08-26'>Айклауд</a> 📱\n" 
+    "<b>-</b> <a href='https://telegra.ph/Podrobno-ob-ajklaude-10-26'>Айклауд</a> 📱\n" 
 )
 
 packs = (

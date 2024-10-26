@@ -19,36 +19,35 @@ while True:
     print("Список доступных команд:\n\n1)rejected - Все отклоненные пользователи\n2)accepted - Все принятые пользователи\n3)all - Все пользователи\n4)find - поиск по какому либо параметру\n")
     action = input("Введите команду: ")
     print("\n")
+    
+    if action == "rejected":
+        users = manager.all_rejected_users()
+    elif action == "accepted":
+        users = manager.all_accepted_users()
+    elif action == "all":
+        users = manager.all_users()
+    elif action == "find":
+        print(
+            "Список доступных параметров:\n\n"
+            "1) id - ID записи (int)\n"
+            "2) user_id - Telegram ID (int)\n"
+            "3) first_name - Имя (str)\n"
+            "4) last_name - Фамилия (str)\n"
+            "5) age - Возраст (int)\n"
+            "6) gender_female - Пол (bool)\n"
+        )
+        param_name = input("Введите название параметра: ")
+        param_value = input("Введите значение параметра: ")
 
-    match action:
-        case "rejected":
-            users = manager.all_rejected_users()
-        case "accepted":
-            users = manager.all_accepted_users()
-        case "all":
-            users = manager.all_users()
-        case "find":
-            print(
-                "Список доступных параметров:\n\n"
-                "1)id - ID записи (int)\n"
-                "2)user_id - Telegram ID (int)\n"
-                "3)first_name - Имя (str)\n"
-                "4)last_name - Фамилия (str)\n"
-                "5)age - Возраст (int)\n"
-                "6)gender_female - Пол (bool)\n"
-            )
-            param_name = input("Введите название параметра: ")
-            param_value = input("Введите значение параметра: ")
+        if param_name == "gender_female":
+            if param_value.lower() == "true" or param_value.lower() == "t":
+                param_value = True
+            else:
+                param_value = False
+        elif param_name == "id" or param_name == "user_id" or param_name == "age":
+            param_value = int(param_value)
 
-            if param_name == "gender_female":
-                if param_value.lower() == "true" or param_value.lower() == "t":
-                    param_value = True
-                else:
-                    param_value = False
-            elif param_name == "id" or param_name == "user_id" or param_name == "age":
-                param_value = int(param_value)
-
-            users = manager.get_user_by_param(param_name, param_value)
+        users = manager.get_user_by_param(param_name, param_value)
 
     try:
         for user in users:
