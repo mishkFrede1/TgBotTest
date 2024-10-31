@@ -1,12 +1,15 @@
 from psycopg2.pool import SimpleConnectionPool
+from dotenv import load_dotenv
+import os
 
 class Manager():
+    load_dotenv()
     connection_pool = SimpleConnectionPool(
         1, 20, 
-        user='postgres',
-        password='1707',
-        host='127.0.0.1',
-        database='users_profiles'
+        user=os.getenv('USER'),
+        password=os.getenv('PASSWORD'),
+        host=os.getenv('HOST'),
+        database=os.getenv('DATABASE')
     )
 
     def get_connection_from_pool(self) -> any:
