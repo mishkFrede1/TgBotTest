@@ -1,6 +1,4 @@
 from psycopg2.pool import SimpleConnectionPool
-from datetime import time
-from datetime import date
 
 class Manager():
     connection_pool = SimpleConnectionPool(
@@ -24,16 +22,6 @@ class Manager():
         except Exception as _ex:
             print("[ERROR]", _ex)
             return None
-        
-    def put_connection_in_pool(self, conn):
-        """
-        Return connection back in the pool of DB.
-        """
-        try:
-            self.connection_pool.putconn(conn)
-
-        except Exception as _ex:
-            print("[ERROR]", _ex)
 
     def release_db_connection(self, conn):
         try:
@@ -50,7 +38,6 @@ class Manager():
         :return:
         """
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -59,18 +46,15 @@ class Manager():
                     """, 
                     (user_id,)
                 )
-                exists = cursor.fetchone()[0]
-                return(exists)
+                return(cursor.fetchone()[0])
             
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def all_users(self):
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -78,18 +62,15 @@ class Manager():
                     SELECT * FROM users;
                     """
                 )
-                all = cursor.fetchall()
-                return(all)
+                return(cursor.fetchall())
             
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def all_rejected_users(self) -> bool:
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -97,18 +78,15 @@ class Manager():
                     SELECT * FROM users WHERE rejected = TRUE;
                     """
                 )
-                all = cursor.fetchall()
-                return(all)
+                return(cursor.fetchall())
             
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def all_accepted_users(self) -> bool:
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -116,18 +94,15 @@ class Manager():
                     SELECT * FROM users WHERE accepted = TRUE;
                     """
                 )
-                all = cursor.fetchall()
-                return(all)
+                return(cursor.fetchall())
             
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def user_accepted(self, user_id: int) -> bool:
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -136,13 +111,11 @@ class Manager():
                     """, 
                     (user_id,)
                 )
-                exists = cursor.fetchone()[0]
-                return(exists)
+                return(cursor.fetchone()[0])
             
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def new_user(self, user_id: int, first_name: str, last_name: str, age: int, gender_female: bool, rejected=False):
@@ -161,12 +134,10 @@ class Manager():
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def get_user(self, user_id: int):
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -180,12 +151,10 @@ class Manager():
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def get_user_by_param(self, param_name: str, param_value):
         conn = self.get_connection_from_pool()
-        conn.autocommit = True
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -199,7 +168,6 @@ class Manager():
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
             self.release_db_connection(conn)
 
     def update_app_status(self, user_id: int, param_name: str, param_value: bool):
@@ -218,24 +186,4 @@ class Manager():
         except Exception as _ex:
             print("[ERROR]", _ex)
         finally:
-            cursor.close()
-            self.release_db_connection(conn)
-
-    def update_grades_cards(self, user_id: int, grades_cards):
-        conn = self.get_connection_from_pool()
-        conn.autocommit = True
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    UPDATE users SET grades_cards = %s WHERE user_id = %s;
-                    """, 
-                    (grades_cards, user_id,)
-                )
-                print("[INFO] Succesfully upload data:", grades_cards, user_id)
-            
-        except Exception as _ex:
-            print("[ERROR]", _ex)
-        finally:
-            cursor.close()
             self.release_db_connection(conn)
