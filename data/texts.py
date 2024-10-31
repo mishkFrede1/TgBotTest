@@ -57,7 +57,8 @@ info_text = (
     "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n\n"
     "📋📋 <b><b>Ссылки</b>:</b> 📋📋\n"
     " - Наша группа: https://t.me/+uXP_7w9g4DowYmQx\n"
-    " - Чат для воркеров: https://t.me/+YuhkJo2leEQyNmUy\n\n"
+    " - Чат для воркеров: https://t.me/+YuhkJo2leEQyNmUy\n"
+    " - Канал с профитами: https://t.me/+NxkXbycrHGc5NjMy\n\n"
     "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n"
     "🧠 <b>Grim Team</b> 🧠 © \n"
 )
